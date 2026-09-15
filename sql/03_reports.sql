@@ -1,49 +1,130 @@
 
+-- Operational reports for the sales and delivery database
+-- SQL Server / T-SQL
+-- Reference period: June 2020
 
 
+-- ============================================================
+-- WEEKLY SALES REPORTS
+-- ============================================================
 
---RELATORIO SEMANAL DE VENDAS
---semana de 23 a 30 de Junho
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE DATA BETWEEN '2020-06-23' and '2020-06-30';
-
---semana de 16 a 22 de Junho
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE DATA BETWEEN '2020-06-16' and '2020-06-22';
-
---semana de 09 a 15 de Junho
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE DATA BETWEEN '2020-06-09' and '2020-06-15';
-
---semana de 1 a 8 de Junho
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE DATA BETWEEN '2020-06-01' and '2020-06-08';
-
---QUINZENAL
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE data < (GETDATE() + 14 );
-
--- mensal
-select codigo as 'Nr Pedido', data as 'Data Pedido' from pedido
-WHERE DATA BETWEEN '2020-06-01' and '2020-06-30';
-
---De vendas por atendente
-SELECT COUNT(fk_Atendente_matricula) AS 'Total de vendas' ,  atendente.Nomecompleto as 'Atendente'
-from Atendente_Comissao JOIN Atendente
-ON   Atendente_Comissao.fk_Atendente_matricula = atendente.MATRICULA
-group by fk_Atendente_matricula, Nomecompleto;
-
---De cliente por entrega e por produto
-SELECT COUNT (fk_entrega_codigo) AS 'Total' , entrega.descricao as 'Descricao'
-FROM Entrega JOIN PEDIDO
-ON entrega.codigo = fk_entrega_codigo
-GROUP BY descricao, fk_entrega_codigo;
-
---de pagamentos por mes
-SELECT COUNT (fk_pagamento_codigo) AS 'Total de pedidos' , pagamento.descricao as 'Descricao'
-FROM pedido JOIN pagamento
-ON pedido.fk_pagamento_codigo = pagamento.codigo
-GROUP BY fk_pagamento_codigo, pagamento.descricao;
+-- Week 1: June 1 to June 8
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-01' AND '2020-06-08'
+ORDER BY data, codigo;
 
 
+-- Week 2: June 9 to June 15
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-09' AND '2020-06-15'
+ORDER BY data, codigo;
 
+
+-- Week 3: June 16 to June 22
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-16' AND '2020-06-22'
+ORDER BY data, codigo;
+
+
+-- Week 4: June 23 to June 30
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-23' AND '2020-06-30'
+ORDER BY data, codigo;
+
+
+-- ============================================================
+-- BIWEEKLY SALES REPORTS
+-- ============================================================
+
+-- First half of June: June 1 to June 15
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-01' AND '2020-06-15'
+ORDER BY data, codigo;
+
+
+-- Second half of June: June 16 to June 30
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-16' AND '2020-06-30'
+ORDER BY data, codigo;
+
+
+-- ============================================================
+-- MONTHLY SALES REPORT
+-- ============================================================
+
+SELECT
+    codigo AS [Nr Pedido],
+    data AS [Data Pedido]
+FROM Pedido
+WHERE data BETWEEN '2020-06-01' AND '2020-06-30'
+ORDER BY data, codigo;
+
+
+-- ============================================================
+-- SALES BY ATTENDANT
+-- ============================================================
+
+SELECT
+    Atendente.matricula AS [Matricula],
+    Atendente.nomeCompleto AS [Atendente],
+    COUNT(Atendente_Comissao.fk_Pedido_codigo) AS [Total de vendas]
+FROM Atendente_Comissao
+INNER JOIN Atendente
+    ON Atendente_Comissao.fk_Atendente_matricula = Atendente.matricula
+GROUP BY
+    Atendente.matricula,
+    Atendente.nomeCompleto
+ORDER BY
+    [Total de vendas] DESC;
+
+
+-- ============================================================
+-- SALES BY DELIVERY TYPE
+-- ============================================================
+
+SELECT
+    Entrega.descricao AS [Tipo de entrega],
+    COUNT(Pedido.codigo) AS [Total de pedidos]
+FROM Pedido
+INNER JOIN Entrega
+    ON Pedido.fk_Entrega_codigo = Entrega.codigo
+GROUP BY
+    Entrega.codigo,
+    Entrega.descricao
+ORDER BY
+    [Total de pedidos] DESC;
+
+
+-- ============================================================
+-- SALES BY PAYMENT TYPE
+-- ============================================================
+
+SELECT
+    Pagamento.descricao AS [Forma de pagamento],
+    COUNT(Pedido.codigo) AS [Total de pedidos]
+FROM Pedido
+INNER JOIN Pagamento
+    ON Pedido.fk_Pagamento_codigo = Pagamento.codigo
+GROUP BY
+    Pagamento.codigo,
+    Pagamento.descricao
+ORDER BY
+    [Total de pedidos] DESC;
